@@ -43,11 +43,18 @@ function searchByTitle(title, bookData){
     return results;
 }
 
-const bookKeys = Object.keys(books);
-
 public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+        const username = req.body.username;
+        const password = req.body.password;
+        if (username && password) {
+          if (!isValid(username)) {
+            users.push({"username":username,"password":password});
+            return res.status(200).json({message: "User successfully registered. Now you can login"});
+          } else {
+            return res.status(404).json({message: "User already exists!"});
+          }
+        }
+        return res.status(404).json({message: "Unable to register user."});
 });
 
 // Get the book list available in the shop DONE
@@ -79,7 +86,9 @@ public_users.get('/title/:title',function (req, res) {
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
     const isbn = req.params.isbn;
-    const matchingBook = searchByIsbn(isbn, books);
+    const matchingBooks = searchByIsbn(isbn, books);
+    let result = matchingBooks.map(({ reviews }) => reviews)
+    res.json(result);
 });
 
 module.exports.general = public_users;
