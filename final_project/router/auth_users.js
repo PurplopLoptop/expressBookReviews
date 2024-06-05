@@ -47,10 +47,30 @@ regd_users.post("/login", (req,res) => {
     }
 });
 
+function searchByIsbn(isbn, bookData){
+    const results = [];
+    for(const bookId in bookData) {
+        if (bookData.hasOwnProperty(bookId)) {
+            const book = bookData[bookId];
+            if (book.isbn === isbn) {
+                results.push(book);
+            }
+        }
+    }
+    return results;
+}
+
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const review = req.query.review;
+    const isbn = req.params.isbn;
+    const username = req.session.username
+    const matchingBooks = searchByIsbn(isbn, books);
+    if(!matchingBooks) {
+      return res.status(404).json({ error: 'Book not found'});
+    }
+    matchingBooks.reviews[username] = review;
+    res.json({message: 'Review updated'});
 });
 
 module.exports.authenticated = regd_users;
